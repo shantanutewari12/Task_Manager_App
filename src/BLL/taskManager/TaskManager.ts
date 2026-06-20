@@ -98,13 +98,11 @@ export class TaskManager {
 
     // Sort
     result.sort((a, b) => {
-      let cmp = 0
-      if (sort.field === 'dueDate') {
-        cmp = new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
-      } else {
-        // sort.field === 'priority' (only other SortField value)
-        cmp = PRIORITY_WEIGHT[a.priority] - PRIORITY_WEIGHT[b.priority]
-      }
+      const cmp =
+        sort.field === 'dueDate'
+          ? new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+          : // sort.field === 'priority' (only other SortField value)
+            PRIORITY_WEIGHT[a.priority] - PRIORITY_WEIGHT[b.priority]
       return sort.direction === 'asc' ? cmp : -cmp
     })
 

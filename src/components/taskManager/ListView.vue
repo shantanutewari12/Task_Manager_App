@@ -5,31 +5,42 @@
       <span class="sort-label">Sort by:</span>
       <button
         class="sort-btn"
-        :class="{ 'sort-btn--active': manager.viewState.sort.field === 'dueDate' }"
+        :class="{
+          'sort-btn--active': manager.viewState.sort.field === 'dueDate',
+        }"
         id="sort-due-date"
         @click="toggleSort('dueDate')"
       >
         Due Date
-        <span class="sort-arrow">{{ sortArrow('dueDate') }}</span>
+        <span class="sort-arrow">{{ sortArrow("dueDate") }}</span>
       </button>
       <button
         class="sort-btn"
-        :class="{ 'sort-btn--active': manager.viewState.sort.field === 'priority' }"
+        :class="{
+          'sort-btn--active': manager.viewState.sort.field === 'priority',
+        }"
         id="sort-priority"
         @click="toggleSort('priority')"
       >
         Priority
-        <span class="sort-arrow">{{ sortArrow('priority') }}</span>
+        <span class="sort-arrow">{{ sortArrow("priority") }}</span>
       </button>
     </div>
 
     <!-- Grouped list by status -->
     <div v-for="group in groupedTasks" :key="group.status" class="list-group">
       <div class="list-group-header" @click="toggleGroup(group.status)">
-        <span class="list-group-dot" :style="{ background: group.color }" ></span>
+        <span
+          class="list-group-dot"
+          :style="{ background: group.color }"
+        ></span>
         <span class="list-group-label">{{ group.label }}</span>
         <span class="list-group-count">{{ group.tasks.length }}</span>
-        <span class="list-group-chevron" :class="{ 'list-group-chevron--open': openGroups.has(group.status) }">›</span>
+        <span
+          class="list-group-chevron"
+          :class="{ 'list-group-chevron--open': openGroups.has(group.status) }"
+          >›</span
+        >
       </div>
 
       <Transition name="group-expand">
@@ -61,29 +72,64 @@
                 <span class="list-task-title">{{ task.title }}</span>
               </div>
               <div class="list-col list-col--assignee">
-                <div class="assignee-avatar assignee-avatar--sm" :style="{ background: getAvatarColor(task.assignee) }" :title="task.assignee">
+                <div
+                  class="assignee-avatar assignee-avatar--sm"
+                  :style="{ background: getAvatarColor(task.assignee) }"
+                  :title="task.assignee"
+                >
                   {{ getInitials(task.assignee) }}
                 </div>
                 <span class="list-assignee-name">{{ task.assignee }}</span>
               </div>
               <div class="list-col list-col--priority">
-                <span class="priority-badge" :class="`priority-badge--${task.priority}`">
+                <span
+                  class="priority-badge"
+                  :class="`priority-badge--${task.priority}`"
+                >
                   {{ capitalize(task.priority) }}
                 </span>
               </div>
               <div class="list-col list-col--due">
-                <span class="card-due" :class="{ 'card-due--overdue': manager.isOverdue(task) }">
+                <span
+                  class="card-due"
+                  :class="{ 'card-due--overdue': manager.isOverdue(task) }"
+                >
                   {{ formatDate(task.dueDate) }}
-                  <span v-if="manager.isOverdue(task)" class="overdue-label">Overdue</span>
+                  <span v-if="manager.isOverdue(task)" class="overdue-label"
+                    >Overdue</span
+                  >
                 </span>
               </div>
               <div class="list-col list-col--tags">
-                <span v-for="tag in task.tags.slice(0, 2)" :key="tag" class="tag-chip">{{ tag }}</span>
-                <span v-if="task.tags.length > 2" class="tag-chip tag-chip--more">+{{ task.tags.length - 2 }}</span>
+                <span
+                  v-for="tag in task.tags.slice(0, 2)"
+                  :key="tag"
+                  class="tag-chip"
+                  >{{ tag }}</span
+                >
+                <span
+                  v-if="task.tags.length > 2"
+                  class="tag-chip tag-chip--more"
+                  >+{{ task.tags.length - 2 }}</span
+                >
               </div>
               <div class="list-col list-col--actions">
-                <button class="card-action-btn" :id="`list-edit-${task.id}`" @click="$emit('edit-task', task)" title="Edit">✎</button>
-                <button class="card-action-btn card-action-btn--danger" :id="`list-delete-${task.id}`" @click="$emit('delete-task', task)" title="Delete">✕</button>
+                <button
+                  class="card-action-btn"
+                  :id="`list-edit-${task.id}`"
+                  @click="$emit('edit-task', task)"
+                  title="Edit"
+                >
+                  ✎
+                </button>
+                <button
+                  class="card-action-btn card-action-btn--danger"
+                  :id="`list-delete-${task.id}`"
+                  @click="$emit('delete-task', task)"
+                  title="Delete"
+                >
+                  ✕
+                </button>
               </div>
             </div>
           </TransitionGroup>
@@ -94,101 +140,122 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive } from 'vue'
-import type { TaskManager } from '../../BLL/taskManager/TaskManager'
-import type { Task, TaskStatus, SortField } from '../../BLL/taskManager/types'
+import { computed, reactive } from "vue";
+import type { TaskManager } from "../../BLL/taskManager/TaskManager";
+import type { Task, TaskStatus, SortField } from "../../BLL/taskManager/types";
 
 // ── Props ──────────────────────────────────────────────────────────
 interface Props {
-  manager: TaskManager
+  manager: TaskManager;
 }
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
 // ── Emits ──────────────────────────────────────────────────────────
 defineEmits<{
-  (e: 'edit-task', task: Task): void
-  (e: 'delete-task', task: Task): void
-}>()
+  (e: "edit-task", task: Task): void;
+  (e: "delete-task", task: Task): void;
+}>();
 
 // ── Collapsible groups ─────────────────────────────────────────────
-const openGroups = reactive<Set<TaskStatus>>(new Set(['todo', 'in-progress', 'done']))
+const openGroups = reactive<Set<TaskStatus>>(
+  new Set(["todo", "in-progress", "done"]),
+);
 
 function toggleGroup(status: TaskStatus): void {
   if (openGroups.has(status)) {
-    openGroups.delete(status)
+    openGroups.delete(status);
   } else {
-    openGroups.add(status)
+    openGroups.add(status);
   }
 }
 
 // ── Grouped data ────────────────────────────────────────────────────
 interface GroupedColumn {
-  status: TaskStatus
-  label: string
-  color: string
-  emptyMessage: string
-  emptyIcon: string
-  tasks: Task[]
+  status: TaskStatus;
+  label: string;
+  color: string;
+  emptyMessage: string;
+  emptyIcon: string;
+  tasks: Task[];
 }
 
 const groupedTasks = computed<GroupedColumn[]>(() => [
   {
-    status: 'todo',
-    label: 'To Do',
-    color: '#f59e0b',
-    emptyMessage: 'No tasks',
-    emptyIcon: '📋',
-    tasks: props.manager.getFilteredByStatus('todo'),
+    status: "todo",
+    label: "To Do",
+    color: "#f59e0b",
+    emptyMessage: "No tasks",
+    emptyIcon: "📋",
+    tasks: props.manager.getFilteredByStatus("todo"),
   },
   {
-    status: 'in-progress',
-    label: 'In Progress',
-    color: '#6366f1',
-    emptyMessage: 'Nothing in progress',
-    emptyIcon: '🚀',
-    tasks: props.manager.getFilteredByStatus('in-progress'),
+    status: "in-progress",
+    label: "In Progress",
+    color: "#6366f1",
+    emptyMessage: "Nothing in progress",
+    emptyIcon: "🚀",
+    tasks: props.manager.getFilteredByStatus("in-progress"),
   },
   {
-    status: 'done',
-    label: 'Done',
-    color: '#10b981',
-    emptyMessage: 'No completed tasks',
-    emptyIcon: '✅',
-    tasks: props.manager.getFilteredByStatus('done'),
+    status: "done",
+    label: "Done",
+    color: "#10b981",
+    emptyMessage: "No completed tasks",
+    emptyIcon: "✅",
+    tasks: props.manager.getFilteredByStatus("done"),
   },
-])
+]);
 
 // ── Sort ────────────────────────────────────────────────────────────
 function toggleSort(field: SortField): void {
-  const { sort } = props.manager.viewState
-  const newDir = sort.field === field && sort.direction === 'asc' ? 'desc' : 'asc'
-  props.manager.setSort(field, newDir)
+  const { sort } = props.manager.viewState;
+  const newDir =
+    sort.field === field && sort.direction === "asc" ? "desc" : "asc";
+  props.manager.setSort(field, newDir);
 }
 
 function sortArrow(field: SortField): string {
-  const { sort } = props.manager.viewState
-  if (sort.field !== field) return '↕'
-  return sort.direction === 'asc' ? '↑' : '↓'
+  const { sort } = props.manager.viewState;
+  if (sort.field !== field) return "↕";
+  return sort.direction === "asc" ? "↑" : "↓";
 }
 
 // ── Formatting helpers (presentation only) ──────────────────────────
-const AVATAR_PALETTE = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#ef4444']
+const AVATAR_PALETTE = [
+  "#6366f1",
+  "#8b5cf6",
+  "#ec4899",
+  "#f59e0b",
+  "#10b981",
+  "#3b82f6",
+  "#ef4444",
+];
 
 function getAvatarColor(name: string): string {
-  let hash = 0
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash)
-  return AVATAR_PALETTE[Math.abs(hash) % AVATAR_PALETTE.length]
+  let hash = 0;
+  for (let i = 0; i < name.length; i++)
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return AVATAR_PALETTE[Math.abs(hash) % AVATAR_PALETTE.length];
 }
 
 function getInitials(name: string): string {
-  return name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 }
 
 function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  return new Date(dateStr).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 function capitalize(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1)
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 </script>

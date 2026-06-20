@@ -63,7 +63,7 @@ export default [
     files: ['src/**/*.ts'],
     languageOptions: {
       parserOptions: {
-        project: './tsconfig.app.json',
+        projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -80,7 +80,7 @@ export default [
       parser: vueParser,          // <── MUST be vue-eslint-parser (outer)
       parserOptions: {
         parser: tseslint.parser,  // <── TS parser for <script> blocks
-        project: './tsconfig.app.json',
+        projectService: true,
         tsconfigRootDir: import.meta.dirname,
         extraFileExtensions: ['.vue'],
         ecmaVersion: 'latest',

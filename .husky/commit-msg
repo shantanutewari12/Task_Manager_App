@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+# ─────────────────────────────────────────────────────────────────────────────
+# commit-msg hook — enforces Conventional Commits format
+# Pattern: <type>(<scope>): <description>
+# Types: feat, fix, docs, style, refactor, perf, test, chore, revert, ci, build
+# ─────────────────────────────────────────────────────────────────────────────
+
+COMMIT_MSG_FILE="$1"
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+PATTERN="^(feat|fix|docs|style|refactor|perf|test|chore|revert|ci|build)(\(.+\))?: .{1,100}$"
+
+if ! echo "$COMMIT_MSG" | grep -qE "$PATTERN"; then
+  echo ""
+  echo "❌ Invalid commit message format."
+  echo ""
+  echo "   Expected: <type>(<scope>): <description>"
+  echo "   Example:  feat(kanban): add drag-and-drop between columns"
+  echo ""
+  echo "   Valid types: feat | fix | docs | style | refactor | perf | test | chore | revert | ci | build"
+  echo ""
+  echo "   Your message: \"$COMMIT_MSG\""
+  exit 1
+fi
+
+echo "✅ Commit message format is valid."
+exit 0

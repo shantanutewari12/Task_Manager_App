@@ -1,0 +1,33 @@
+#!/usr/bin/env sh
+# ─────────────────────────────────────────────────────────────────────────────
+# Pre-commit hook — blocks commit if any staged file fails:
+#   1. ESLint  (TypeScript strict + Vue 3 rules, zero warnings allowed)
+#   2. vue-tsc (full TypeScript strict type-check across the whole project)
+# ─────────────────────────────────────────────────────────────────────────────
+
+echo "🔍 Running pre-commit checks..."
+
+# ── Step 1: ESLint + auto-fix on staged files via lint-staged ──────────────
+npx lint-staged
+LINT_EXIT=$?
+
+if [ $LINT_EXIT -ne 0 ]; then
+  echo ""
+  echo "❌ ESLint check FAILED. Fix the errors above and re-stage your files."
+  echo "   Run: npm run lint:fix   to auto-fix what's possible."
+  exit 1
+fi
+
+# ── Step 2: Full TypeScript type check (strict mode) ──────────────────────
+echo "🔷 Running TypeScript strict type check..."
+npx vue-tsc --noEmit
+TSC_EXIT=$?
+
+if [ $TSC_EXIT -ne 0 ]; then
+  echo ""
+  echo "❌ TypeScript type check FAILED. Fix all type errors before committing."
+  exit 1
+fi
+
+echo "✅ All checks passed — committing."
+exit 0

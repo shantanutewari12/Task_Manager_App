@@ -1,0 +1,11 @@
+# Enforce LF line endings for all text files in the repo
+* text=auto eol=lf
+
+# Shell scripts must always be LF (husky hooks)
+.husky/* text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.ico binary
+*.webp binary

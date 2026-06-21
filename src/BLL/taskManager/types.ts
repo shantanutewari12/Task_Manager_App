@@ -3,6 +3,8 @@
 // No inline types allowed anywhere else in the project
 // ============================================================
 
+import type { TaskManager } from './TaskManager'
+
 export type TaskStatus = 'todo' | 'in-progress' | 'done'
 
 export type TaskPriority = 'low' | 'medium' | 'high'
@@ -66,3 +68,42 @@ export interface ViewState {
   sort: SortOptions
   filters: FilterOptions
 }
+
+// Component Props interfaces
+export interface KanbanBoardProps {
+  manager: TaskManager
+}
+
+export interface KanbanColumnProps {
+  column: ColumnMeta
+  tasks: Task[]
+  manager: TaskManager
+}
+
+export interface TaskCardProps {
+  task: Task
+  manager: TaskManager
+}
+
+export interface TaskModalProps {
+  task: Task | null
+  manager: TaskManager
+}
+
+export interface ViewToggleProps {
+  manager: TaskManager
+}
+
+export interface ListViewProps {
+  manager: TaskManager
+}
+
+export interface GroupedColumn {
+  status: TaskStatus
+  label: string
+  color: string
+  emptyMessage: string
+  emptyIcon: string
+  tasks: Task[]
+}
+

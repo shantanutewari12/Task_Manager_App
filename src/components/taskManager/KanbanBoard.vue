@@ -8,32 +8,36 @@
       :manager="manager"
       @edit-task="$emit('edit-task', $event)"
       @delete-task="$emit('delete-task', $event)"
+      @add-task="$emit('add-task')"
     />
+    <!-- Dummy Add Column Button to match reference UI -->
+    <div class="column-add-btn-wrapper">
+      <button class="column-add-btn" aria-label="Add column">
+        <span>+</span>
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { TaskManager } from '../../BLL/taskManager/TaskManager'
-import type { Task, ColumnMeta } from '../../BLL/taskManager/types'
+import type { Task, ColumnMeta, KanbanBoardProps } from '../../BLL/taskManager/types'
 import KanbanColumn from './KanbanColumn.vue'
 
 // ── Props ──────────────────────────────────────────────────────────
-interface Props {
-  manager: TaskManager
-}
-defineProps<Props>()
+defineProps<KanbanBoardProps>()
 
 // ── Emits ──────────────────────────────────────────────────────────
 defineEmits<{
   (e: 'edit-task', task: Task): void
   (e: 'delete-task', task: Task): void
+  (e: 'add-task'): void
 }>()
 
 // ── Column metadata (presentation only) ────────────────────────────
 const columns: ColumnMeta[] = [
   {
     status: 'todo',
-    label: 'To Do',
+    label: 'To do',
     color: '#f59e0b',
     emptyMessage: 'No tasks here yet',
     emptyIcon: '📋',

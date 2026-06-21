@@ -141,14 +141,10 @@
 
 <script setup lang="ts">
 import { computed, reactive } from "vue";
-import type { TaskManager } from "../../BLL/taskManager/TaskManager";
-import type { Task, TaskStatus, SortField } from "../../BLL/taskManager/types";
+import type { Task, TaskStatus, SortField, ListViewProps, GroupedColumn } from "../../BLL/taskManager/types";
 
 // ── Props ──────────────────────────────────────────────────────────
-interface Props {
-  manager: TaskManager;
-}
-const props = defineProps<Props>();
+const props = defineProps<ListViewProps>();
 
 // ── Emits ──────────────────────────────────────────────────────────
 defineEmits<{
@@ -170,15 +166,6 @@ function toggleGroup(status: TaskStatus): void {
 }
 
 // ── Grouped data ────────────────────────────────────────────────────
-interface GroupedColumn {
-  status: TaskStatus;
-  label: string;
-  color: string;
-  emptyMessage: string;
-  emptyIcon: string;
-  tasks: Task[];
-}
-
 const groupedTasks = computed<GroupedColumn[]>(() => [
   {
     status: "todo",

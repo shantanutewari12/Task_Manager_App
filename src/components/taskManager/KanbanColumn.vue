@@ -13,6 +13,19 @@
         <span class="column-title">{{ column.label }}</span>
         <span class="column-count">{{ tasks.length }}</span>
       </div>
+      <div class="column-header-right">
+        <button
+          class="col-icon-btn"
+          :id="`btn-add-${column.status}`"
+          title="Add task"
+          @click="$emit('add-task')"
+        >+</button>
+        <button
+          class="col-icon-btn"
+          :id="`btn-col-more-${column.status}`"
+          title="More options"
+        >···</button>
+      </div>
     </div>
 
     <!-- Task list with transition-group -->
@@ -39,22 +52,17 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { TaskManager } from '../../BLL/taskManager/TaskManager'
-import type { Task, ColumnMeta } from '../../BLL/taskManager/types'
+import type { Task, KanbanColumnProps } from '../../BLL/taskManager/types'
 import TaskCard from './TaskCard.vue'
 
 // ── Props ──────────────────────────────────────────────────────────
-interface Props {
-  column: ColumnMeta
-  tasks: Task[]
-  manager: TaskManager
-}
-const props = defineProps<Props>()
+const props = defineProps<KanbanColumnProps>()
 
 // ── Emits ──────────────────────────────────────────────────────────
 defineEmits<{
   (e: 'edit-task', task: Task): void
   (e: 'delete-task', task: Task): void
+  (e: 'add-task'): void
 }>()
 
 // ── Drag and drop (native HTML5) ────────────────────────────────────

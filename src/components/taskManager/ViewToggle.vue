@@ -32,11 +32,8 @@
 </template>
 
 <script setup lang="ts">
-import type { TaskManager } from '../../BLL/taskManager/TaskManager'
+import type { ViewToggleProps } from '../../BLL/taskManager/types'
 
 // ── Props ──────────────────────────────────────────────────────────
-interface Props {
-  manager: TaskManager
-}
-defineProps<Props>()
+defineProps<ViewToggleProps>()
 </script>

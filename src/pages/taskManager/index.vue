@@ -1,33 +1,6 @@
 <template>
   <div class="app-shell">
 
-    <!-- ── Workspace Switcher (far left) ────────────────────────── -->
-    <aside class="workspace-switcher">
-      <div class="switcher-logo">
-        <svg viewBox="0 0 40 40" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="20" cy="20" r="16" fill="url(#logoGradient)" />
-          <path d="M20 10C21.5 15 25 18.5 30 20C25 21.5 21.5 25 20 30C18.5 25 15 21.5 10 20C15 18.5 18.5 15 20 10Z" fill="#ffffff" />
-          <defs>
-            <linearGradient id="logoGradient" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#8b5cf6" />
-              <stop offset="100%" stop-color="#ec4899" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
-      <div class="switcher-items">
-        <div class="switcher-item switcher-item--active" title="TaskFlow Workspace">
-          <span>TF</span>
-        </div>
-        <div class="switcher-item" title="Personal Workspace">
-          <span>PW</span>
-        </div>
-        <div class="switcher-item" title="Design System">
-          <span>DS</span>
-        </div>
-      </div>
-      <button class="switcher-add-btn" aria-label="Add workspace">+</button>
-    </aside>
 
     <!-- ── Sidebar ──────────────────────────────────────────────── -->
     <aside class="sidebar">

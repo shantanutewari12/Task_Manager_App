@@ -10,12 +10,6 @@
       @delete-task="$emit('delete-task', $event)"
       @add-task="$emit('add-task')"
     />
-    <!-- Dummy Add Column Button to match reference UI -->
-    <div class="column-add-btn-wrapper">
-      <button class="column-add-btn" aria-label="Add column">
-        <span>+</span>
-      </button>
-    </div>
   </div>
 </template>
 

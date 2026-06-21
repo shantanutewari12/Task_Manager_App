@@ -156,7 +156,12 @@
 
       <!-- New task button (floating above kanban/list) -->
       <div class="content-action-bar">
-        <button class="btn btn--primary" id="btn-new-task" @click="openCreateModal">
+        <button
+          v-if="manager.viewState.view === 'list'"
+          class="btn btn--primary"
+          id="btn-new-task"
+          @click="openCreateModal"
+        >
           + New Task
         </button>
         <span class="total-count-label">{{ totalCount }} tasks total</span>

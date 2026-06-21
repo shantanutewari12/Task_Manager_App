@@ -64,7 +64,7 @@ export interface ColumnMeta {
 }
 
 export interface ViewState {
-  view: 'kanban' | 'list'
+  view: 'overview' | 'kanban' | 'list' | 'table'
   sort: SortOptions
   filters: FilterOptions
 }
@@ -106,4 +106,13 @@ export interface GroupedColumn {
   emptyIcon: string
   tasks: Task[]
 }
+
+export interface OverviewProps {
+  manager: TaskManager
+}
+
+export interface TableViewProps {
+  manager: TaskManager
+}
+
 

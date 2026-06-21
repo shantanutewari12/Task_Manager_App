@@ -190,7 +190,7 @@
                 <div class="activity-avatar" style="background: #ec4899">DD</div>
                 <div class="activity-content">
                   <span class="activity-text">
-                    <strong>Davis Donin</strong> uploaded file
+                    <strong>Test User</strong> uploaded file
                     <strong>User flow</strong>
                   </span>
                   <span class="activity-time">10:45 AM</span>

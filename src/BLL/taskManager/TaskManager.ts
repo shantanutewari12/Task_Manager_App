@@ -174,7 +174,7 @@ export class TaskManager {
 
   // ── View state mutations ───────────────────────────────────
 
-  public setView(view: 'kanban' | 'list'): void {
+  public setView(view: 'overview' | 'kanban' | 'list' | 'table'): void {
     this.viewState.view = view
     this._persistViewState()
   }

@@ -1,6 +1,6 @@
 <template>
-  <div class="list-view">
-    <!-- Sort bar -->
+  <div class="table-view">
+    <!-- Sort bar (reused from List view) -->
     <div class="list-sort-bar">
       <span class="sort-label">Sort by:</span>
       <button
@@ -8,7 +8,7 @@
         :class="{
           'sort-btn--active': manager.viewState.sort.field === 'dueDate',
         }"
-        id="sort-due-date"
+        id="table-sort-due-date"
         @click="toggleSort('dueDate')"
       >
         Due Date
@@ -19,7 +19,7 @@
         :class="{
           'sort-btn--active': manager.viewState.sort.field === 'priority',
         }"
-        id="sort-priority"
+        id="table-sort-priority"
         @click="toggleSort('priority')"
       >
         Priority
@@ -27,32 +27,18 @@
       </button>
     </div>
 
-    <!-- Grouped list by status -->
-    <div v-for="group in groupedTasks" :key="group.status" class="list-group">
-      <div class="list-group-header" @click="toggleGroup(group.status)">
-        <span
-          class="list-group-header-badge"
-          :class="`list-group-header-badge--${group.status}`"
-        >
-          {{ getStatusLabel(group.status) }}
-        </span>
-        <span class="list-group-count">{{ group.tasks.length }}</span>
-        <span
-          class="list-group-chevron"
-          :class="{ 'list-group-chevron--collapsed': !openGroups[group.status] }"
-        >
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </span>
-      </div>
-
-      <div v-show="openGroups[group.status]" class="list-group-body">
+    <!-- Flat table structure -->
+    <div class="list-group">
+      <div class="list-group-body">
         <!-- Table header -->
-        <div class="list-row list-row--header">
+        <div class="list-row list-row--header table-view-row">
           <div class="list-col list-col--title">
             <svg class="table-header-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></svg>
             Task Name
+          </div>
+          <div class="list-col list-col--status">
+            <svg class="table-header-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4l3 3" /></svg>
+            Status
           </div>
           <div class="list-col list-col--desc">
             <svg class="table-header-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>
@@ -78,16 +64,16 @@
         </div>
 
         <!-- Empty state -->
-        <div v-if="group.tasks.length === 0" class="list-empty">
-          <span>{{ group.emptyIcon }} {{ group.emptyMessage }}</span>
+        <div v-if="filteredTasks.length === 0" class="list-empty">
+          <span>📋 No tasks found matching current filters.</span>
         </div>
 
-        <!-- Rows -->
+        <!-- Flat Rows list -->
         <div class="list-rows-container">
           <div
-            v-for="task in group.tasks"
+            v-for="task in filteredTasks"
             :key="task.id"
-            class="list-row list-row--task"
+            class="list-row list-row--task table-view-row"
             :class="{ 'list-row--overdue': manager.isOverdue(task) }"
           >
             <div class="list-col list-col--title">
@@ -106,6 +92,15 @@
                   {{ task.title }}
                 </span>
               </div>
+            </div>
+            <div class="list-col list-col--status">
+              <span
+                class="status-badge-card"
+                :style="{ color: getStatusStyle(task.status).color, background: getStatusStyle(task.status).bg }"
+              >
+                <span class="status-dot" :style="{ background: getStatusStyle(task.status).color }"></span>
+                {{ getStatusLabel(task.status) }}
+              </span>
             </div>
             <div class="list-col list-col--desc">
               <span class="list-task-desc" :title="task.description || '-'">
@@ -154,8 +149,8 @@
               <div class="card-menu">
                 <button class="card-menu-trigger" aria-label="Task options">···</button>
                 <div class="card-menu-dropdown">
-                  <button class="card-menu-item" :id="`list-edit-${task.id}`" @click.stop="$emit('edit-task', task)">✎ Edit</button>
-                  <button class="card-menu-item card-menu-item--danger" :id="`list-delete-${task.id}`" @click.stop="$emit('delete-task', task)">✕ Delete</button>
+                  <button class="card-menu-item" :id="`table-edit-${task.id}`" @click.stop="$emit('edit-task', task)">✎ Edit</button>
+                  <button class="card-menu-item card-menu-item--danger" :id="`table-delete-${task.id}`" @click.stop="$emit('delete-task', task)">✕ Delete</button>
                 </div>
               </div>
             </div>
@@ -167,11 +162,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive } from "vue";
-import type { Task, TaskStatus, SortField, ListViewProps, GroupedColumn, TaskPriority } from "../../BLL/taskManager/types";
+import { computed } from "vue";
+import type { TableViewProps, Task, TaskStatus, SortField, TaskPriority } from "../../BLL/taskManager/types";
 
 // ── Props ──────────────────────────────────────────────────────────
-const props = defineProps<ListViewProps>();
+const props = defineProps<TableViewProps>();
 
 // ── Emits ──────────────────────────────────────────────────────────
 defineEmits<{
@@ -179,59 +174,38 @@ defineEmits<{
   (e: "delete-task", task: Task): void;
 }>();
 
-// ── Collapsible groups ─────────────────────────────────────────────
-const openGroups = reactive<Record<TaskStatus, boolean>>({
-  todo: true,
-  "in-progress": true,
-  done: true,
-});
+// ── Computed data ──────────────────────────────────────────────────
+const filteredTasks = computed<Task[]>(() => props.manager.getFilteredList());
 
-function toggleGroup(status: TaskStatus): void {
-  openGroups[status] = !openGroups[status];
-}
-
-// ── Grouped data ────────────────────────────────────────────────────
-const groupedTasks = computed<GroupedColumn[]>(() => [
-  {
-    status: "todo",
-    label: "To do",
-    color: "#f59e0b",
-    emptyMessage: "No tasks",
-    emptyIcon: "📋",
-    tasks: props.manager.getFilteredByStatus("todo"),
-  },
-  {
-    status: "in-progress",
-    label: "In Progress",
-    color: "#6366f1",
-    emptyMessage: "Nothing in progress",
-    emptyIcon: "🚀",
-    tasks: props.manager.getFilteredByStatus("in-progress"),
-  },
-  {
-    status: "done",
-    label: "Done",
-    color: "#10b981",
-    emptyMessage: "No completed tasks",
-    emptyIcon: "✅",
-    tasks: props.manager.getFilteredByStatus("done"),
-  },
-]);
-
-// ── Completion toggle (BLL compliant) ───────────────────────────────
+// ── Completion toggle ──────────────────────────────────────────────
 function onToggleComplete(task: Task): void {
   const newStatus: TaskStatus = task.status === "done" ? "todo" : "done";
   props.manager.moveTo(task.id, newStatus);
 }
 
-// ── Status labels ───────────────────────────────────────────────────
+// ── Status styling ──────────────────────────────────────────────────
+interface StatusStyle {
+  color: string;
+  bg: string;
+}
+
+function getStatusStyle(status: TaskStatus): StatusStyle {
+  if (status === "todo") {
+    return { color: "#ef4444", bg: "#fef2f2" };
+  }
+  if (status === "in-progress") {
+    return { color: "#d97706", bg: "#fef3c7" };
+  }
+  return { color: "#10b981", bg: "#d1fae5" };
+}
+
 function getStatusLabel(status: TaskStatus): string {
   if (status === "todo") return "Not Started";
   if (status === "in-progress") return "In Progress";
   return "Done";
 }
 
-// ── Sort ────────────────────────────────────────────────────────────
+// ── Sorting ────────────────────────────────────────────────────────
 function toggleSort(field: SortField): void {
   const { sort } = props.manager.viewState;
   const newDir =
@@ -239,17 +213,17 @@ function toggleSort(field: SortField): void {
   props.manager.setSort(field, newDir);
 }
 
-// ── Priority labels ──────────────────────────────────────────────────
-function getPriorityLabel(priority: TaskPriority): string {
-  if (priority === "high") return "Urgent";
-  if (priority === "medium") return "Normal";
-  return "Lowest";
-}
-
 function sortArrow(field: SortField): string {
   const { sort } = props.manager.viewState;
   if (sort.field !== field) return "↕";
   return sort.direction === "asc" ? "↑" : "↓";
+}
+
+// ── Priority labels ─────────────────────────────────────────────────
+function getPriorityLabel(priority: TaskPriority): string {
+  if (priority === "high") return "Urgent";
+  if (priority === "medium") return "Normal";
+  return "Lowest";
 }
 
 // ── Dynamic task types ──────────────────────────────────────────────
@@ -277,7 +251,6 @@ function getTaskType(task: Task): TaskTypeInfo {
 // ── Date timeline mock range ────────────────────────────────────────
 function getTimelineRange(task: Task): string {
   const due = new Date(task.dueDate);
-  // Start date 14 days before due date
   const start = new Date(due.getTime() - 14 * 24 * 60 * 60 * 1000);
   
   const fmt = (d: Date): string =>
@@ -289,7 +262,7 @@ function getTimelineRange(task: Task): string {
   return `${fmt(start)} - ${fmt(due)}`;
 }
 
-// ── Formatting helpers (presentation only) ──────────────────────────
+// ── Avatar coloring helpers ──────────────────────────────────────────
 const AVATAR_PALETTE = [
   "#6366f1",
   "#8b5cf6",
@@ -304,7 +277,7 @@ function getAvatarColor(name: string): string {
   let hash = 0;
   for (let i = 0; i < name.length; i++)
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  return AVATAR_PALETTE[Math.abs(hash) % AVATAR_PALETTE.length];
+  return AVATAR_PALETTE[Math.abs(hash) % AVATAR_PALETTE.length] ?? "#6366f1";
 }
 
 function getInitials(name: string): string {

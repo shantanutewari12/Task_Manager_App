@@ -50,9 +50,9 @@ export interface TaskFormData {
 }
 
 export interface ValidationErrors {
-  title?: string
-  dueDate?: string
-  assignee?: string
+  title?: string | undefined
+  dueDate?: string | undefined
+  assignee?: string | undefined
 }
 
 export interface ColumnMeta {
@@ -64,7 +64,7 @@ export interface ColumnMeta {
 }
 
 export interface ViewState {
-  view: 'overview' | 'kanban' | 'list' | 'table'
+  view: 'overview' | 'kanban' | 'list' | 'table' | 'timeline'
   sort: SortOptions
   filters: FilterOptions
 }
@@ -115,4 +115,29 @@ export interface TableViewProps {
   manager: TaskManager
 }
 
+export interface TimelineViewProps {
+  manager: TaskManager
+}
 
+// ── Helper interfaces (used in multiple components) ────────────
+
+/** Task type chip: label, color, bg, icon based on tags */
+export interface TaskTypeInfo {
+  label: string
+  color: string
+  bg: string
+  icon: string
+}
+
+/** Workload stat row used in Overview */
+export interface WorkloadItem {
+  name: string
+  count: number
+  percentage: number
+}
+
+/** Status colour pair used in Table/Timeline views */
+export interface StatusStyle {
+  color: string
+  bg: string
+}

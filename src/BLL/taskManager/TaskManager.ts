@@ -11,9 +11,11 @@ import type {
   TaskPriority,
   FilterOptions,
   SortOptions,
+  SortField,
   TaskFormData,
   ViewState,
 } from './types'
+
 
 const PRIORITY_WEIGHT: Record<TaskPriority, number> = {
   high: 3,
@@ -172,9 +174,24 @@ export class TaskManager {
     return true
   }
 
+  /** Toggle a task between done ↔ todo */
+  public toggleComplete(taskId: string): boolean {
+    const task = this._tasks.find((t) => t.id === taskId)
+    if (!task) return false
+    task.status = task.status === 'done' ? 'todo' : 'done'
+    return true
+  }
+
+  /** Toggle sort field direction, or set asc if switching field */
+  public toggleSort(field: SortField): void {
+    const { sort } = this.viewState
+    const newDir = sort.field === field && sort.direction === 'asc' ? 'desc' : 'asc'
+    this.setSort(field, newDir)
+  }
+
   // ── View state mutations ───────────────────────────────────
 
-  public setView(view: 'overview' | 'kanban' | 'list' | 'table'): void {
+  public setView(view: 'overview' | 'kanban' | 'list' | 'table' | 'timeline'): void {
     this.viewState.view = view
     this._persistViewState()
   }

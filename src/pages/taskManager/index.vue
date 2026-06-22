@@ -83,8 +83,8 @@
       <header class="page-header">
         <div class="page-header-row-2">
           <div class="page-title-group">
-            <h1 class="page-title">Good Morning, Test User 🌟</h1>
-            <p class="page-subtitle">It's Monday, 22 June 2026</p>
+            <h1 class="page-title">Task Workspace</h1>
+            <p class="page-subtitle">Track, organize, and collaborate on your team projects</p>
           </div>
           <div class="header-meta">
             <div class="header-avatar-group" aria-label="Team members">
@@ -140,7 +140,12 @@
             id="tab-table"
             @click="manager.setView('table')"
           >⊟ Table</button>
-          <button class="page-tab page-tab--disabled" id="tab-timeline">⏱ Timeline</button>
+          <button
+            class="page-tab"
+            :class="{ 'page-tab--active': manager.viewState.view === 'timeline' }"
+            id="tab-timeline"
+            @click="manager.setView('timeline')"
+          >⏱ Timeline</button>
         </div>
 
         <div class="page-tabs-right">
@@ -186,7 +191,6 @@
             Share
           </button>
           <button
-            v-if="manager.viewState.view === 'list'"
             class="btn btn--add-task-new"
             id="btn-new-task"
             @click="openCreateModal"
@@ -206,37 +210,46 @@
       </div>
 
       <!-- Views -->
-      <Transition name="view-fade" mode="out-in">
-        <Overview
-          v-if="manager.viewState.view === 'overview'"
-          key="overview"
-          :manager="manager"
-          @edit-task="openEditModal"
-          @delete-task="confirmDelete"
-        />
-        <KanbanBoard
-          v-else-if="manager.viewState.view === 'kanban'"
-          key="kanban"
-          :manager="manager"
-          @edit-task="openEditModal"
-          @delete-task="confirmDelete"
-          @add-task="openCreateModal"
-        />
-        <ListView
-          v-else-if="manager.viewState.view === 'list'"
-          key="list"
-          :manager="manager"
-          @edit-task="openEditModal"
-          @delete-task="confirmDelete"
-        />
-        <TableView
-          v-else-if="manager.viewState.view === 'table'"
-          key="table"
-          :manager="manager"
-          @edit-task="openEditModal"
-          @delete-task="confirmDelete"
-        />
-      </Transition>
+      <div class="view-container">
+        <Transition name="view-fade" mode="out-in">
+          <Overview
+            v-if="manager.viewState.view === 'overview'"
+            key="overview"
+            :manager="manager"
+            @edit-task="openEditModal"
+            @delete-task="confirmDelete"
+          />
+          <KanbanBoard
+            v-else-if="manager.viewState.view === 'kanban'"
+            key="kanban"
+            :manager="manager"
+            @edit-task="openEditModal"
+            @delete-task="confirmDelete"
+            @add-task="openCreateModal"
+          />
+          <ListView
+            v-else-if="manager.viewState.view === 'list'"
+            key="list"
+            :manager="manager"
+            @edit-task="openEditModal"
+            @delete-task="confirmDelete"
+          />
+          <TableView
+            v-else-if="manager.viewState.view === 'table'"
+            key="table"
+            :manager="manager"
+            @edit-task="openEditModal"
+            @delete-task="confirmDelete"
+          />
+          <TimelineView
+            v-else-if="manager.viewState.view === 'timeline'"
+            key="timeline"
+            :manager="manager"
+            @edit-task="openEditModal"
+            @delete-task="confirmDelete"
+          />
+        </Transition>
+      </div>
     </main>
 
     <!-- ── Task Modal ────────────────────────────────────────────── -->
@@ -277,6 +290,7 @@ import KanbanBoard from '../../components/taskManager/KanbanBoard.vue'
 import ListView from '../../components/taskManager/ListView.vue'
 import Overview from '../../components/taskManager/Overview.vue'
 import TableView from '../../components/taskManager/TableView.vue'
+import TimelineView from '../../components/taskManager/TimelineView.vue'
 import TaskModal from '../../components/taskManager/TaskModal.vue'
 
 // ── Instantiate BLL (single instance, passed as prop to children) ─

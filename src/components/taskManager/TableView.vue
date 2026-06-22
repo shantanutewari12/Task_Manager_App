@@ -29,7 +29,7 @@
 
     <!-- Flat table structure -->
     <div class="list-group">
-      <div class="list-group-body">
+      <div class="list-group-body list-group-body--expanded">
         <!-- Table header -->
         <div class="list-row list-row--header table-view-row">
           <div class="list-col list-col--title">
@@ -163,7 +163,8 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import type { TableViewProps, Task, TaskStatus, SortField, TaskPriority } from "../../BLL/taskManager/types";
+import type { TableViewProps, Task, TaskStatus, SortField, TaskPriority, StatusStyle, TaskTypeInfo } from "../../BLL/taskManager/types";
+
 
 // ── Props ──────────────────────────────────────────────────────────
 const props = defineProps<TableViewProps>();
@@ -177,18 +178,12 @@ defineEmits<{
 // ── Computed data ──────────────────────────────────────────────────
 const filteredTasks = computed<Task[]>(() => props.manager.getFilteredList());
 
-// ── Completion toggle ──────────────────────────────────────────────
+// ── Completion toggle ────────────────────────────────────
 function onToggleComplete(task: Task): void {
-  const newStatus: TaskStatus = task.status === "done" ? "todo" : "done";
-  props.manager.moveTo(task.id, newStatus);
+  props.manager.toggleComplete(task.id);
 }
 
 // ── Status styling ──────────────────────────────────────────────────
-interface StatusStyle {
-  color: string;
-  bg: string;
-}
-
 function getStatusStyle(status: TaskStatus): StatusStyle {
   if (status === "todo") {
     return { color: "#ef4444", bg: "#fef2f2" };
@@ -205,12 +200,9 @@ function getStatusLabel(status: TaskStatus): string {
   return "Done";
 }
 
-// ── Sorting ────────────────────────────────────────────────────────
+// ── Sorting ──────────────────────────────────────────────
 function toggleSort(field: SortField): void {
-  const { sort } = props.manager.viewState;
-  const newDir =
-    sort.field === field && sort.direction === "asc" ? "desc" : "asc";
-  props.manager.setSort(field, newDir);
+  props.manager.toggleSort(field);
 }
 
 function sortArrow(field: SortField): string {
@@ -226,14 +218,7 @@ function getPriorityLabel(priority: TaskPriority): string {
   return "Lowest";
 }
 
-// ── Dynamic task types ──────────────────────────────────────────────
-interface TaskTypeInfo {
-  label: string;
-  color: string;
-  bg: string;
-  icon: string;
-}
-
+// ── Dynamic task types ──────────────────────────────────
 function getTaskType(task: Task): TaskTypeInfo {
   const firstTag = task.tags[0]?.toLowerCase() ?? "";
   if (firstTag.includes("auth") || firstTag.includes("feature") || firstTag.includes("backend")) {

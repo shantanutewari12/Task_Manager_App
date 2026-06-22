@@ -125,7 +125,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { OverviewProps, Task, TaskStatus } from '../../BLL/taskManager/types'
+import type { OverviewProps, Task, TaskStatus, WorkloadItem } from '../../BLL/taskManager/types'
+
 
 // ── Props ──────────────────────────────────────────────────────────
 const props = defineProps<OverviewProps>()
@@ -141,17 +142,11 @@ const allTasks = computed<Task[]>(() => props.manager.getAllTasks())
 
 const totalTasks = computed<number>(() => allTasks.value.length)
 
-const todoTasks = computed<number>(() =>
-  allTasks.value.filter((t) => t.status === 'todo').length
-)
+const todoTasks = computed<number>(() => props.manager.getTaskCount('todo'))
 
-const inProgressTasks = computed<number>(() =>
-  allTasks.value.filter((t) => t.status === 'in-progress').length
-)
+const inProgressTasks = computed<number>(() => props.manager.getTaskCount('in-progress'))
 
-const doneTasks = computed<number>(() =>
-  allTasks.value.filter((t) => t.status === 'done').length
-)
+const doneTasks = computed<number>(() => props.manager.getTaskCount('done'))
 
 const overdueTasks = computed<number>(() =>
   allTasks.value.filter((t) => props.manager.isOverdue(t)).length
@@ -165,12 +160,6 @@ const urgentList = computed<Task[]>(() => {
 })
 
 // ── Workload stats ─────────────────────────────────────────────────
-interface WorkloadItem {
-  name: string
-  count: number
-  percentage: number
-}
-
 const workloadList = computed<WorkloadItem[]>(() => {
   const map: Record<string, number> = {}
   let maxCount = 0

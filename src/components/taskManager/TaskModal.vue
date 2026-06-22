@@ -246,12 +246,12 @@ const show = ref<boolean>(false)
 nextTick(() => { show.value = true })
 
 // ── Derived state ───────────────────────────────────────────────────
-const isEditing = computed<boolean>(() => props.task !== null)
+const isEditing = computed<boolean>(() => props.task !== null && props.task.id !== '')
 const existingAssignees = computed<string[]>(() => props.manager.getAssignees())
 
 // ── Formatted created-at (read-only display) ─────────────────────────
 const formattedCreatedAt = computed<string>(() => {
-  if (!props.task) return ''
+  if (!props.task?.id) return ''
   const d = new Date(props.task.createdAt)
   const date = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
   const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
@@ -260,7 +260,7 @@ const formattedCreatedAt = computed<string>(() => {
 
 // ── Form state ──────────────────────────────────────────────────────
 function buildInitialForm(): TaskFormData {
-  if (props.task) {
+  if (props.task?.id) {
     return {
       title: props.task.title,
       description: props.task.description,
@@ -277,7 +277,7 @@ function buildInitialForm(): TaskFormData {
     title: '',
     description: '',
     priority: 'medium',
-    dueDate: tomorrow.toISOString().split('T')[0] ?? '',
+    dueDate: props.task ? props.task.dueDate : (tomorrow.toISOString().split('T')[0] ?? ''),
     assignee: '',
     status: 'todo',
     tags: [],

@@ -105,16 +105,36 @@ export class TaskManager {
           ? new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
           : // sort.field === 'priority' (only other SortField value)
             PRIORITY_WEIGHT[a.priority] - PRIORITY_WEIGHT[b.priority]
+      if (cmp === 0) {
+        // Newer tasks (larger createdAt time) should come first (descending)
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      }
       return sort.direction === 'asc' ? cmp : -cmp
     })
 
     return result
   }
 
-  /** Filtered tasks grouped by status for Kanban */
+  /** Filtered tasks grouped by status for Kanban (always sorted newest first) */
   public getFilteredByStatus(status: TaskStatus): Task[] {
     const all = this.getTasksByStatus(status)
-    return this.getFilteredAndSorted(all)
+    const { filters } = this.viewState
+    let result = [...all]
+
+    if (filters.priority !== 'all') {
+      result = result.filter((t) => t.priority === filters.priority)
+    }
+
+    if (filters.assignee !== 'all') {
+      result = result.filter((t) => t.assignee === filters.assignee)
+    }
+
+    result.sort((a, b) => {
+      const timeA = new Date(a.statusChangedAt ?? a.createdAt).getTime()
+      const timeB = new Date(b.statusChangedAt ?? b.createdAt).getTime()
+      return timeB - timeA
+    })
+    return result
   }
 
   /** Flat filtered+sorted list for List view */
@@ -141,12 +161,14 @@ export class TaskManager {
   // ── CRUD methods ───────────────────────────────────────────
 
   public createTask(formData: TaskFormData): Task {
+    const now = new Date().toISOString()
     const newTask: Task = {
       id: this._generateId(),
-      createdAt: new Date().toISOString(),
+      createdAt: now,
+      statusChangedAt: now,
       ...formData,
     }
-    this._tasks.push(newTask)
+    this._tasks.unshift(newTask)
     return newTask
   }
 
@@ -154,7 +176,13 @@ export class TaskManager {
     const index = this._tasks.findIndex((t) => t.id === id)
     if (index === -1) return null
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const updated: Task = { ...this._tasks[index]!, ...formData }
+    const current = this._tasks[index]!
+    const statusChanged = current.status !== formData.status
+    const updated: Task = {
+      ...current,
+      ...formData,
+      statusChangedAt: statusChanged ? new Date().toISOString() : (current.statusChangedAt ?? current.createdAt),
+    }
     this._tasks.splice(index, 1, updated)
     return updated
   }
@@ -170,7 +198,10 @@ export class TaskManager {
   public moveTo(taskId: string, newStatus: TaskStatus): boolean {
     const task = this._tasks.find((t) => t.id === taskId)
     if (!task) return false
-    task.status = newStatus
+    if (task.status !== newStatus) {
+      task.status = newStatus
+      task.statusChangedAt = new Date().toISOString()
+    }
     return true
   }
 
@@ -178,7 +209,11 @@ export class TaskManager {
   public toggleComplete(taskId: string): boolean {
     const task = this._tasks.find((t) => t.id === taskId)
     if (!task) return false
+    const oldStatus = task.status
     task.status = task.status === 'done' ? 'todo' : 'done'
+    if (task.status !== oldStatus) {
+      task.statusChangedAt = new Date().toISOString()
+    }
     return true
   }
 

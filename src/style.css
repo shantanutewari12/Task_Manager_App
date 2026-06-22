@@ -586,6 +586,8 @@ input, textarea, select {
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
 }
 
 .column-count {
@@ -2577,4 +2579,267 @@ input, textarea, select {
   min-width: 0;
   overflow: hidden;
 }
+
+/* ================================================================
+   Mobile & Responsive Styles
+   ================================================================ */
+
+/* Mobile Header bar (hidden on desktop) */
+.mobile-header {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  background: #ffffff;
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  flex-shrink: 0;
+}
+
+.mobile-menu-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.mobile-menu-toggle:hover {
+  color: var(--color-accent);
+}
+
+.mobile-app-logo {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--color-accent);
+}
+
+/* Mobile Sidebar Backdrop */
+.mobile-sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 17, 23, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 95;
+  animation: fade-in-backdrop 0.2s ease-out;
+}
+
+@keyframes fade-in-backdrop {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Page content wrappers for new tabs */
+.page-content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-6) var(--space-8);
+  min-height: 0;
+}
+
+.scrollable-page {
+  overflow-y: auto;
+}
+
+/* Media Query breakpoints (tablet and mobile viewports) */
+@media (max-width: 1024px) {
+  .overview-stats-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Layout adjustments */
+  .app-shell {
+    flex-direction: column;
+  }
+
+  /* Show mobile header bar */
+  .mobile-header {
+    display: flex;
+  }
+
+  /* Sidebar drawer behavior */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: var(--sidebar-width) !important;
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform var(--transition-slow);
+    background: #f8f9fa;
+    border-right: 1px solid var(--color-border);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .sidebar--open {
+    transform: translateX(0) !important;
+  }
+
+  /* When collapsed class is set, prevent shrinking width on mobile overlay */
+  .sidebar--collapsed {
+    transform: translateX(-100%) !important;
+    width: var(--sidebar-width) !important;
+  }
+
+  .sidebar--collapsed.sidebar--open {
+    transform: translateX(0) !important;
+  }
+
+  .sidebar-toggle-btn {
+    display: none !important;
+  }
+
+  /* Main content resets */
+  .main-content {
+    height: calc(100vh - 53px); /* Subtract mobile header height */
+    width: 100% !important;
+  }
+
+  /* Header and tabs adjustments */
+  .page-header {
+    padding: var(--space-4);
+  }
+
+  .page-header-row-2 {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+
+  .page-title {
+    font-size: 22px;
+  }
+
+  .header-meta {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .page-tabs-bar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0 var(--space-4);
+    gap: var(--space-2);
+  }
+
+  .page-tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: var(--space-1);
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .page-tabs-right {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: var(--space-2);
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    justify-content: flex-start;
+    gap: var(--space-2);
+  }
+
+  .tabs-separator {
+    display: none;
+  }
+
+  /* Grids and views */
+  .overview-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: var(--space-3) !important;
+    padding: var(--space-4) !important;
+  }
+
+  .overview-content-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--space-4) !important;
+    padding: 0 var(--space-4) var(--space-4) !important;
+  }
+
+  .overview-view {
+    padding: 0 !important;
+  }
+
+  /* Kanban board view horizontal scroll columns */
+  .board-columns {
+    display: flex !important;
+    overflow-x: auto !important;
+    gap: var(--space-4);
+    padding: var(--space-4) !important;
+    -webkit-overflow-scrolling: touch;
+    flex-direction: row !important;
+  }
+
+  .board-column {
+    min-width: 290px;
+    max-width: 290px;
+    flex-shrink: 0;
+  }
+
+  /* Lists, tables and timeline container overflows */
+  .list-view {
+    padding: var(--space-4) !important;
+  }
+
+  .table-view {
+    padding: var(--space-4) !important;
+    overflow-x: auto !important;
+  }
+
+  .table-view-row {
+    min-width: 750px; /* Forces horizontal scrolling for tabular fields */
+  }
+
+  .timeline-view {
+    padding: var(--space-4) !important;
+    overflow-x: auto !important;
+  }
+
+  /* Modal full screen */
+  .detail-modal {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+  }
+
+  .page-content-wrapper {
+    padding: var(--space-4);
+  }
+}
+
+@media (max-width: 480px) {
+  .overview-stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .header-avatar-group {
+    display: none !important;
+  }
+
+  .btn--invite {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .btn--ghost {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
 

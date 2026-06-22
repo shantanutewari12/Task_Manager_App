@@ -26,6 +26,7 @@ export interface Task {
   status: TaskStatus
   tags: string[]
   createdAt: string        // ISO datetime string
+  statusChangedAt?: string // ISO datetime string when status last changed
 }
 
 export interface FilterOptions {
@@ -140,4 +141,26 @@ export interface WorkloadItem {
 export interface StatusStyle {
   color: string
   bg: string
+}
+
+export type ActivePage = 'dashboard' | 'inbox' | 'calendar' | 'tasks' | 'docs' | 'meeting' | 'settings' | 'support'
+
+export interface DashboardProps {
+  manager: TaskManager
+}
+
+export interface CalendarProps {
+  manager: TaskManager
+}
+
+export interface ComingSoonProps {
+  pageName: string
+}
+
+export interface CalendarDay {
+  dateString: string
+  dayNumber: number
+  isCurrentMonth: boolean
+  isToday: boolean
+  tasks: Task[]
 }

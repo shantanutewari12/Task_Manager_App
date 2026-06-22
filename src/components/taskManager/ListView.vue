@@ -208,7 +208,7 @@ const groupedTasks = computed<GroupedColumn[]>(() => [
     color: "#f59e0b",
     emptyMessage: "No tasks",
     emptyIcon: "📋",
-    tasks: props.manager.getFilteredByStatus("todo"),
+    tasks: props.manager.getFilteredAndSorted(props.manager.getTasksByStatus("todo")),
   },
   {
     status: "in-progress",
@@ -216,7 +216,7 @@ const groupedTasks = computed<GroupedColumn[]>(() => [
     color: "#6366f1",
     emptyMessage: "Nothing in progress",
     emptyIcon: "🚀",
-    tasks: props.manager.getFilteredByStatus("in-progress"),
+    tasks: props.manager.getFilteredAndSorted(props.manager.getTasksByStatus("in-progress")),
   },
   {
     status: "done",
@@ -224,7 +224,7 @@ const groupedTasks = computed<GroupedColumn[]>(() => [
     color: "#10b981",
     emptyMessage: "No completed tasks",
     emptyIcon: "✅",
-    tasks: props.manager.getFilteredByStatus("done"),
+    tasks: props.manager.getFilteredAndSorted(props.manager.getTasksByStatus("done")),
   },
 ]);
 

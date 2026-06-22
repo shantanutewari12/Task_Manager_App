@@ -191,9 +191,9 @@ defineEmits<{
 
 // ── Collapsible groups ─────────────────────────────────────────────
 const openGroups = reactive<Record<TaskStatus, boolean>>({
-  todo: true,
-  "in-progress": true,
-  done: true,
+  todo: false,
+  "in-progress": false,
+  done: false,
 });
 
 function toggleGroup(status: TaskStatus): void {

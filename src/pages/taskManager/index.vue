@@ -12,7 +12,6 @@
           <div class="user-name">Test User</div>
           <div class="user-email">testuser12@gmail.com</div>
         </div>
-        <button class="sidebar-profile-more" aria-label="Profile options">···</button>
       </div>
 
       <!-- Navigation -->

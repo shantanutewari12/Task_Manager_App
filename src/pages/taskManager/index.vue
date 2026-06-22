@@ -3,40 +3,52 @@
 
 
     <!-- ── Sidebar ──────────────────────────────────────────────── -->
-    <aside class="sidebar">
+    <aside class="sidebar" :class="{ 'sidebar--collapsed': isSidebarCollapsed }">
 
       <!-- Profile at top -->
       <div class="sidebar-profile">
         <div class="user-avatar-small" :style="{ background: getAvatarColor('Davis Donin') }">DD</div>
-        <div class="user-info">
+        <div class="user-info" v-if="!isSidebarCollapsed">
           <div class="user-name">Test User</div>
           <div class="user-email">testuser12@gmail.com</div>
         </div>
+        <button class="sidebar-toggle-btn" :title="isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'" @click="isSidebarCollapsed = !isSidebarCollapsed">
+          <svg v-if="isSidebarCollapsed" viewBox="0 0 24 24" class="sidebar-toggle-icon" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+            <line x1="9" y1="3" x2="9" y2="21" />
+            <path d="M14 9l3 3-3 3" />
+          </svg>
+          <svg v-else viewBox="0 0 24 24" class="sidebar-toggle-icon" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+            <line x1="9" y1="3" x2="9" y2="21" />
+            <path d="M15 15l-3-3 3-3" />
+          </svg>
+        </button>
       </div>
 
       <!-- Navigation -->
       <nav class="sidebar-nav">
-        <div class="nav-section-label">Menu</div>
+        <div class="nav-section-label" v-if="!isSidebarCollapsed">Menu</div>
         <a class="nav-item" href="#">
           <span class="nav-icon">
             <svg class="sidebar-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           </span>
-          Dashboard
+          <span class="nav-text" v-if="!isSidebarCollapsed">Dashboard</span>
         </a>
         <a class="nav-item" href="#">
           <span class="nav-icon">
             <svg class="sidebar-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
           </span>
-          Inbox
+          <span class="nav-text" v-if="!isSidebarCollapsed">Inbox</span>
         </a>
         <a class="nav-item" href="#">
           <span class="nav-icon">
             <svg class="sidebar-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           </span>
-          Calendar
+          <span class="nav-text" v-if="!isSidebarCollapsed">Calendar</span>
         </a>
 
-        <div class="nav-section-label">
+        <div class="nav-section-label" v-if="!isSidebarCollapsed">
           Team spaces
           <button class="nav-section-add" aria-label="Add team space">+</button>
         </div>
@@ -44,33 +56,33 @@
           <span class="nav-icon">
             <svg class="sidebar-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
           </span>
-          Tasks
+          <span class="nav-text" v-if="!isSidebarCollapsed">Tasks</span>
         </a>
         <a class="nav-item" href="#">
           <span class="nav-icon">
             <svg class="sidebar-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
           </span>
-          Docs
+          <span class="nav-text" v-if="!isSidebarCollapsed">Docs</span>
         </a>
         <a class="nav-item" href="#">
           <span class="nav-icon">
             <svg class="sidebar-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           </span>
-          Meeting
+          <span class="nav-text" v-if="!isSidebarCollapsed">Meeting</span>
         </a>
 
-        <div class="nav-section-label">Other</div>
+        <div class="nav-section-label" v-if="!isSidebarCollapsed">Other</div>
         <a class="nav-item" href="#">
           <span class="nav-icon">
             <svg class="sidebar-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           </span>
-          Settings
+          <span class="nav-text" v-if="!isSidebarCollapsed">Settings</span>
         </a>
         <a class="nav-item" href="#">
           <span class="nav-icon">
             <svg class="sidebar-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           </span>
-          Support
+          <span class="nav-text" v-if="!isSidebarCollapsed">Support</span>
         </a>
       </nav>
     </aside>
@@ -298,6 +310,9 @@ const manager = new TaskManager()
 // ── Derived state ─────────────────────────────────────────────────
 const assignees = computed<string[]>(() => manager.getAssignees())
 const totalCount = computed<number>(() => manager.getAllTasks().length)
+
+// ── Sidebar State ─────────────────────────────────────────────────
+const isSidebarCollapsed = ref<boolean>(false)
 
 // ── Modal state ───────────────────────────────────────────────────
 const showModal = ref<boolean>(false)

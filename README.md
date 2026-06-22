@@ -110,3 +110,70 @@ To build the application for deployment:
 npm run build
 ```
 The output files will be generated in the `dist/` folder, ready for hosting.
+
+---
+
+## 🧠 Architecture Decisions & Trade-offs
+
+### Decision 1 — BLL Class over Pinia/Vuex
+**Choice**: All business logic is in a single `TaskManager` class, instantiated once in `index.vue` and passed down via typed props.
+
+**Reasoning**: Pinia/Vuex add an external dependency and scatter logic across stores, actions, getters. A plain TypeScript class is framework-agnostic, fully testable in isolation, and keeps all logic in one auditable file.
+
+**Trade-off**: The class instance must be manually threaded through the component tree via props. This becomes verbose in deeply nested trees. For a larger app, this approach would need re-evaluation (e.g., a service layer or DI container).
+
+---
+
+### Decision 2 — Vanilla CSS over a Component Library (e.g., PrimeVue, Vuetify)
+**Choice**: The entire UI is built with hand-crafted Vanilla CSS using design tokens defined in `:root`.
+
+**Reasoning**: Component libraries impose their own design language, often requiring overrides that bloat the bundle and make consistency harder. Vanilla CSS gives full control over every pixel and results in a leaner build.
+
+**Trade-off**: Significantly more time is spent on layout and component polish compared to using a pre-built library. Accessibility features (ARIA patterns, keyboard traps in modals) must be handled manually instead of inheriting them from a well-tested UI library.
+
+---
+
+### Decision 3 — localStorage for View Persistence (no backend)
+**Choice**: The selected view, active filters, and sort state are persisted to `localStorage` by the `TaskManager` class on every mutation.
+
+**Reasoning**: Keeps the app self-contained and offline-capable. No network roundtrip required to restore user preferences. Provides a native "session continuity" feel without any server dependency.
+
+**Trade-off**: `localStorage` is synchronous and has a 5MB limit. If view state grew large (e.g., storing full task lists), this would become a bottleneck. Additionally, state is tied to a single browser/device — preferences are not portable across sessions or users.
+
+---
+
+## ⚠️ Known Limitations & Assumptions
+
+1. **No real backend**: All data is held in memory (seeded from `mockData.ts`). Refreshing the page resets all tasks to the mock dataset — only the _view state_ (selected tab, filters, sort) is persisted.
+
+2. **Single user**: The app assumes a single logged-in user ("Test User"). There is no authentication, multi-tenancy, or role-based access control.
+
+3. **Mock assignees in table/timeline**: The Table and Timeline views render two additional "mock team members" (MR, PN) as decorative avatars per row — these are not derived from real task data and are purely presentational.
+
+4. **Timeline is visual-only**: The Timeline (Gantt) view computes a "start date" as 14 days before the due date. It is not driven by a real `startDate` field on the task model — this is a UI approximation.
+
+5. **No pagination**: The List and Table views render all tasks without pagination or virtual scrolling. Performance may degrade with hundreds of tasks.
+
+6. **Tag management**: Tags are stored as plain strings and have no taxonomy or auto-complete validation beyond the existing task list — duplicate tags across tasks are not de-duplicated globally.
+
+---
+
+## ⏱ Time Log
+
+| Phase | Task | Estimated Hours |
+|-------|------|----------------|
+| Planning | Requirements review, architecture design, component tree mapping | 1.0 h |
+| Foundation | Project scaffold (Vite + Vue 3 + TypeScript), ESLint, Husky | 0.5 h |
+| BLL | `TaskManager.ts`, `types.ts`, `mockData.ts` | 1.5 h |
+| UI — Layout | Sidebar, page header, tabs bar, global CSS design system | 2.0 h |
+| UI — Kanban | `KanbanBoard.vue`, `KanbanColumn.vue`, `TaskCard.vue`, native DnD | 2.0 h |
+| UI — List | `ListView.vue` — collapsible accordions, sort bar | 1.5 h |
+| UI — Table | `TableView.vue` — data grid with sort, status badges | 1.0 h |
+| UI — Timeline | `TimelineView.vue` — Gantt visualization | 1.5 h |
+| UI — Overview | `Overview.vue` — metrics, urgent list, workload chart | 1.5 h |
+| UI — Modal | `TaskModal.vue` — form validation, create/edit flow | 2.0 h |
+| Fixes & Polish | Accordion bugs, Add Task visibility, sidebar collapse toggle | 1.5 h |
+| Compliance | Audit fixes (types.ts consolidation, BLL delegation, scroll fix) | 1.0 h |
+| Deployment | Vercel setup, README | 0.5 h |
+| **Total** | | **~17.5 h** |
+

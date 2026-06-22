@@ -1,138 +1,112 @@
-# TaskFlow — Production-Quality Task Manager
+# TaskFlow — Modern Task Management Application
 
-A feature-rich task management application built with **Vue 3 (Composition API) + TypeScript**, following strict architectural constraints and production-quality design standards.
+A highly responsive, premium task management application built with Vue 3, TypeScript, and Vanilla CSS. The app features 5 interactive views for tracking projects, workloads, and schedules, designed with modern aesthetics (glassmorphism, vibrant tailored color palettes, smooth micro-animations, and full responsive layout).
 
-![TaskFlow Kanban Board](./docs/screenshot-kanban.png)
+**Live Demo**: [https://taskmanager-task-flow.vercel.app/](https://taskmanager-task-flow.vercel.app/)
 
 ---
 
-## Quick Start
+## 🌟 Key Features
 
+1. **Dashboard Overview**: Rich analytics overview showing key metrics (total tasks, completed, in-progress, pending) along with progress gauges and team workload distribution charts.
+2. **Kanban Board**: Drag-and-drop-style status boards for managing workflows. Move tasks between columns (Not Started, In Progress, Completed) with visual indicators.
+3. **Interactive List View**: Grouped task lists by status with smooth, collapsible accordions. Fully responsive and aligns beautifully when expanded or collapsed.
+4. **Data Table**: High-density grid with sortable columns (Due Date, Priority) and status-colored tags.
+5. **Timeline (Gantt-style)**: Horizontal roadmap visualization displaying task durations, start/end dates, and task progressions mapped to a timeline grid.
+6. **Task Actions (CRUD)**: Create, edit, and delete tasks dynamically via an advanced modal interface with fields for priority, category, assignees, dates, and descriptions.
+7. **Filters & Sorting**: Global filtering by priority and assignee, and sorting by due date or priority.
+
+---
+
+## 🏗️ Architecture & Design Philosophy
+
+The application strictly follows a **clean separation of concerns** by isolating the Presentation Layer (Vue Components) from the Business Logic Layer (BLL). State management is kept local and predictable through clear data flows, strictly avoiding complex third-party state managers like Pinia or Vuex.
+
+### 1. Presentation Layer vs. Business Logic Layer (BLL)
+* **Single Source of Truth**: All CRUD, filtering, sorting, and state mutation logic resides solely in [TaskManager.ts](file:///c:/Users/lko42/OneDrive/Desktop/task_manager/src/BLL/taskManager/TaskManager.ts).
+* **Zero Business Logic in Views**: Vue components act as purely presentational templates. They read from properties exposed by the `TaskManager` class and delegate user actions back to `TaskManager` methods (e.g. `taskManager.addTask(...)`, `taskManager.toggleComplete(...)`).
+
+### 2. Dependency Injection & Instantiation
+* **Strict Parent-Child Props**: The `TaskManager` class is instantiated **exactly once** in the root page component: [index.vue](file:///c:/Users/lko42/OneDrive/Desktop/task_manager/src/pages/taskManager/index.vue).
+* **No `provide`/`inject`**: To ensure maximum type safety and trace-ability, the instance is passed explicitly down the component tree using TypeScript-typed props.
+
+### 3. Strict Type Safety
+* **Zero `any` Types**: The codebase operates under strict TypeScript rules.
+* **Unified Domain Models**: All shared interfaces, types, and enums live in a single, dedicated type file: [types.ts](file:///c:/Users/lko42/OneDrive/Desktop/task_manager/src/BLL/taskManager/types.ts). No inline interfaces or type declarations are scattered across views.
+
+---
+
+## 📂 Project Structure
+
+```
+task_manager/
+├── src/
+│   ├── BLL/                     # Business Logic Layer (Framework Agnostic)
+│   │   └── taskManager/
+│   │       ├── TaskManager.ts   # Core business logic, filters, sorting, and state mutations
+│   │       ├── mockData.ts      # Initial seed dataset
+│   │       └── types.ts         # Central types, interfaces, and enums (Single source of truth)
+│   │
+│   ├── components/              # Vue Components (Presentation Layer)
+│   │   └── taskManager/
+│   │       ├── KanbanBoard.vue  # Board view component
+│   │       ├── KanbanColumn.vue # Kanban column renderer
+│   │       ├── ListView.vue     # Collapsible Accordion List view
+│   │       ├── TableView.vue    # Data grid view
+│   │       ├── TimelineView.vue # Timeline / Gantt view
+│   │       ├── Overview.vue     # Analytics Dashboard
+│   │       ├── TaskCard.vue     # Individual task card
+│   │       ├── TaskModal.vue    # Create / Edit task form modal
+│   │       └── ViewToggle.vue   # Tab selector bar
+│   │
+│   ├── pages/
+│   │   └── taskManager/
+│   │       └── index.vue        # Main Entry Point (Instantiates BLL, layout shell)
+│   │
+│   ├── style.css                # Global Design Tokens & Typography
+│   ├── main.ts                  # App initialization
+│   └── App.vue                  # Root component wrapper
+│
+├── vite.config.ts               # Vite configuration
+├── tsconfig.json                # Strict TypeScript configuration
+└── package.json                 # Project dependencies & scripts
+```
+
+---
+
+## 🎨 Design Tokens & UI Specs
+
+* **Typography**: Outfit / Inter Google Fonts for high legibility and premium editorial feel.
+* **Color System**: Modern HSL-based dark mode theme with primary gradients, glowing active states, and custom status indicator pill designs.
+* **Micro-Animations**:
+  * Hover transitions for cards (`transform: translateY(-2px)`).
+  * Smooth height transitions for collapsibles (`max-height` transitions).
+  * Tab transitions and indicator sliders.
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+Make sure you have Node.js (v18+) installed.
+
+### Installation
+1. Clone or download the repository.
+2. Navigate to the project root and install the dependencies:
+   ```bash
+   npm install
+   ```
+
+### Running Locally
+Start the local development server:
 ```bash
-npm install
 npm run dev
 ```
+Open your browser and navigate to `http://localhost:5173`.
 
-Open [http://localhost:5173](http://localhost:5173) — mock data is pre-loaded, no configuration required.
-
----
-
-## Architecture Overview
-
-### Why `TaskManager` as a Class?
-
-All business logic lives in a single class: [`src/BLL/taskManager/TaskManager.ts`](./src/BLL/taskManager/TaskManager.ts).
-
-This is a deliberate architectural choice:
-
-1. **Testability in isolation.** A class with typed method signatures can be unit-tested without mounting any Vue component. You instantiate `new TaskManager()`, call methods, and assert on return values — no DOM, no reactivity system required.
-
-2. **Explicit data flow.** The class is instantiated exactly once in `pages/taskManager/index.vue` and passed as a typed prop to every child component. This makes the data flow visible and traceable — you can grep for `manager.` and immediately see every call site. There is no hidden global store or injection magic.
-
-3. **Separation of concerns.** Components are responsible for *rendering* and *user events only*. They call `manager.moveTo()`, `manager.createTask()`, `manager.setSort()`, etc. — they never implement filtering, sorting, or validation logic themselves. This means the entire business behaviour of the app can be understood by reading one file.
-
-4. **Vue reactivity without Pinia/Vuex.** The class uses `reactive()` internally on its `_tasks` array and `viewState` object. Because Vue's reactivity is *object-level*, components that receive the `manager` prop observe mutations automatically — no store subscription, no `provide/inject` ceremony.
-
-### File Structure
-
+### Production Build
+To build the application for deployment:
+```bash
+npm run build
 ```
-src/
-├── BLL/taskManager/
-│   ├── types.ts          # ALL interfaces/types/enums — single source of truth
-│   ├── mockData.ts       # Typed const mockTasks: Task[]
-│   └── TaskManager.ts    # All business logic (CRUD, filter, sort, moveTo)
-├── components/taskManager/
-│   ├── KanbanBoard.vue   # Layout: renders 3 KanbanColumns
-│   ├── KanbanColumn.vue  # Drop zone + TransitionGroup animation
-│   ├── TaskCard.vue      # Card rendering + drag initiation
-│   ├── ListView.vue      # Table layout, collapsible groups, sort bar
-│   ├── TaskModal.vue     # Create/edit form with inline validation
-│   └── ViewToggle.vue    # Board ↔ List toggle button group
-└── pages/taskManager/
-    └── index.vue         # Root: instantiates TaskManager, owns modals
-```
-
----
-
-## Design & UX Decisions
-
-### 1. Deterministic Avatar Colors via Hash
-
-Rather than assigning colours randomly (which would change on re-render) or requiring a stored colour map, assignee avatar backgrounds are computed by hashing the assignee's name string into an index into a curated 7-colour palette. The same name always produces the same colour across all views — Kanban cards, list rows, and the sidebar — with zero state.
-
-```ts
-let hash = 0
-for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash)
-return PALETTE[Math.abs(hash) % PALETTE.length]
-```
-
-### 2. Native HTML5 Drag-and-Drop (No Libraries)
-
-The drag-and-drop implementation uses only the browser's built-in `dragstart` / `dragover` / `dragleave` / `drop` events and `DataTransfer`. This avoids bundling a drag library (saves ~30 KB), keeps the code auditable, and ensures the feature degrades gracefully in any environment that supports the HTML5 D&D API. The task ID is stored in `dataTransfer` as `text/plain`; on `drop`, `manager.moveTo(taskId, newStatus)` is called — a single BLL method that updates the reactive array in place.
-
-### 3. View State Persisted in `localStorage`
-
-The user's chosen view (Kanban/List), sort field, sort direction, and active filters are serialised as JSON into `localStorage` on every mutation via `_persistViewState()`. On the next page load, `_loadViewState()` rehydrates the `ViewState` object before the first render. This means refreshing the browser returns the user to exactly where they left off — a small detail that meaningfully reduces friction in a daily-use tool.
-
-### 4. `TransitionGroup` for Column Animations
-
-Card additions, deletions, and cross-column moves are animated using Vue's `<TransitionGroup name="card-list">` with separate `enter`, `leave`, and `move` CSS transitions. The `move` class uses `transform` + `transition` so Vue FLIP-animates repositioning without any JavaScript measurement. This gives smooth reordering entirely in CSS, performant on the compositor thread.
-
-### 5. Form Validation Strategy
-
-Validation runs field-by-field on `blur` (so errors appear as the user leaves each field, not on first focus) and in full on submit. The "due date cannot be in the past" rule is deliberately skipped for *edit* operations — it would be disruptive to refuse saving an existing task just because its due date has passed. New tasks, however, must have a future due date.
-
----
-
-## Feature Checklist
-
-| Feature | Status |
-|---|---|
-| Kanban board (3 columns) | ✅ |
-| Native HTML5 drag-and-drop | ✅ |
-| List view with sort (dueDate / priority asc/desc) | ✅ |
-| View persisted in localStorage | ✅ |
-| Priority badge (colour-coded) | ✅ |
-| Overdue detection + red highlight | ✅ |
-| Assignee initials + deterministic colour | ✅ |
-| Tag chips on cards | ✅ |
-| Create task modal + validation | ✅ |
-| Edit task modal | ✅ |
-| Delete with confirmation dialog | ✅ |
-| Filter by priority | ✅ |
-| Filter by assignee | ✅ |
-| Column-change TransitionGroup animation | ✅ |
-| Empty state per column | ✅ |
-| Zero `any` types | ✅ |
-| No Pinia/Vuex/provide-inject | ✅ |
-
----
-
-## Known Limitations & Assumptions
-
-- **No persistence beyond localStorage.** Task data is in-memory; refreshing the page reloads mock data. Adding a backend/IndexedDB store is the obvious next step.
-- **No authentication.** The sidebar user is hardcoded as "Sarah Chen". A real app would read from a session/context.
-- **No mobile layout.** The spec states mobile is not required; the layout is optimised for ≥ 1280 px width.
-- **Drag-and-drop in automated browsers.** The native HTML5 D&D API requires actual `dragstart`/`drop` events with `DataTransfer`; pointer-event simulation in some headless browsers will not trigger the full lifecycle.
-- **Tag comma input edge case.** Tags are added on Enter or comma key. Pasting a comma-separated string will not auto-split — users must add tags individually.
-- **Single assignee per task.** The data model stores `assignee: string`. Multi-assignee is a common request but was out of scope per the spec.
-
----
-
-## Rough 48-Hour Time Log
-
-| Phase | Time | Tasks |
-|---|---|---|
-| Planning & architecture | 1h | Review spec, design file structure, define type contracts |
-| Types + mock data | 0.5h | `types.ts`, 12 mock tasks with all constraints met |
-| `TaskManager` BLL | 1.5h | CRUD, filter/sort, moveTo, localStorage persistence, reactive internals |
-| Page + toolbar | 1h | `index.vue`, filter selects, modal/delete state, toolbar layout |
-| KanbanBoard + KanbanColumn | 1h | Column layout, native D&D drop zone, `TransitionGroup` |
-| TaskCard | 1h | All card UI: badge, 2-line clamp, overdue, avatar, tags, D&D initiation |
-| ListView | 1.5h | Table grid, collapsible groups, sort bar, list-specific empty states |
-| TaskModal | 1.5h | Form fields, tag input, per-field validation, blur/submit timing |
-| ViewToggle | 0.25h | Segment control UI |
-| CSS design system | 2h | Tokens, typography scale, all component styles, transitions |
-| Type-check + bug fixes | 0.5h | `vue-tsc --noEmit`, zero errors |
-| README | 0.5h | This document |
-| **Total** | **~13h** | (Realistic focused sprint, not calendar time) |
+The output files will be generated in the `dist/` folder, ready for hosting.
